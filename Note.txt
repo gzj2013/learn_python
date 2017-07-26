@@ -34,101 +34,160 @@ Python的for循环本质上就是通过不断调用next()函数实现的;
 
 1. 高阶函数
     把函数作为参数传入，这样的函数称为高阶函数，函数式编程就是指这种高度抽象的编程范式。
+   
+    1.1  map/reduce
+    > from functools import reduce
 
+        map()函数接收两个参数，一个是函数，一个是Iterable，map将传入的函数依次作用到序列的每个元素，并把结果作为新的Iterator返回。
 
-1.1  map/reduce
-> from functools import reduce
+        reduce()函数把一个函数作用在一个序列[x1, x2, x3, ...]上， 这个函数必须接收两个参数， reduce把结果继续和序列的下一个元素做累积计算，其效果就是：
 
-    map()函数接收两个参数，一个是函数，一个是Iterable，map将传入的函数依次作用到序列的每个元素，并把结果作为新的Iterator返回。
+            reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
 
-    reduce()函数把一个函数作用在一个序列[x1, x2, x3, ...]上， 这个函数必须接收两个参数， reduce把结果继续和序列的下一个元素做累积计算，其效果就是：
+    1.2 filter
 
-        reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
+        filter()把传入的函数依次作用于每个元素， 然后根据返回值是True还是False决定保留还是丢弃该元素。 注意到filter()函数返回的是一个Iterator，也就是一个惰性序列。
 
-1.2 filter
+    1.3  sorted
+        sorted()函数也是一个高阶函数，它还可以接收一个key函数来实现自定义的排序。
 
-    filter()把传入的函数依次作用于每个元素， 然后根据返回值是True还是False决定保留还是丢弃该元素。
+        默认情况下，对字符串排序，是按照ASCII的大小比较的，由于'Z' < 'a'，结果，大写字母Z会排在小写字母a的前面。
 
-    注意到filter()函数返回的是一个Iterator，也就是一个惰性序列。
+        要进行反向排序，不必改动key函数，可以传入第三个参数reverse=True：
 
-用filter求素数
+2. 返回函数---函数作为返回值
+    一个函数可以返回一个计算结果，也可以返回一个函数。
+    返回一个函数时，牢记该函数并未执行，返回函数中不要引用任何可能会变化的变量。
 
-计算素数的一个方法是埃氏筛法，它的算法理解起来非常简单：
+3. 匿名函数
 
-首先，列出从2开始的所有自然数，构造一个序列：
+    当我们在传入函数时，有些时候，不需要显式地定义函数，直接传入匿名函数更方便。
+    关键字lambda表示匿名函数，冒号前面的x表示函数参数。
 
-2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+4. 装饰器
 
-取序列的第一个数2，它一定是素数，然后用2把序列的2的倍数筛掉：
+    在面向对象（OOP）的设计模式中，decorator被称为装饰模式。OOP的装饰模式需要通过继承和组合来实现，而Python除了能支持OOP的decorator外，直接从语法层次支持decorator。Python的decorator可以用函数实现，也可以用类实现。
 
-3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+5. 偏函数
+    functools.partial的作用就是，把一个函数的某些参数给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
 
-取新序列的第一个数3，它一定是素数，然后用3把序列的3的倍数筛掉：
+四、模块
 
-5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+    自己创建模块时要注意命名，不能和Python自带的模块名称冲突。例如，系统自带了sys模块，自己的模块就不可命名为sys.py，否则将无法导入系统自带的sys模块。
 
-取新序列的第一个数5，然后用5把序列的5的倍数筛掉：
+1. 使用模块
+    在一个模块中，有的函数和变量我们希望仅仅在模块内部使用。在Python中，是通过_前缀来实现的。
 
-7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+    类似_xxx和__xxx这样的函数或变量就是非公开的（private），不应该被直接引用，比如_abc，__abc等；
 
-不断筛下去，就可以得到所有的素数。
+2. 安装第三方模块
 
-用Python来实现这个算法，可以先构造一个从3开始的奇数序列：
+在Python中，安装第三方模块，是通过包管理工具pip完成的。
+注意：Mac或Linux上有可能并存Python 3.x和Python 2.x，因此对应的pip命令是pip3。
 
-def _odd_iter():
-    n = 1
-    while True:
-        n = n + 2
-        yield n
-注意这是一个生成器，并且是一个无限序列。
+一是直接修改sys.path，添加要搜索的目录`sys.path.append('/Users/michael/my_py_scripts')`；
+这种方法是在运行时修改，运行结束后失效。
+第二种方法是设置环境变量PYTHONPATH，该环境变量的内容会被自动添加到模块搜索路径中。设置方式与设置Path环境变量类似。注意只需要添加你自己的搜索路径，Python自己本身的搜索路径不受影响。
 
-然后定义一个筛选函数：
+五、面向对象编程
 
-def _not_divisible(n):
-    return lambda x: x % n > 0
-最后，定义一个生成器，不断返回下一个素数：
+    面向对象的抽象程度又比函数要高，因为一个Class既包含数据，又包含操作数据的方法。
 
-def primes():
-    yield 2
-    it = _odd_iter() # 初始序列
-    while True:
-        n = next(it) # 返回序列的第一个数
-        yield n
-        it = filter(_not_divisible(n), it) # 构造新序列
-这个生成器先返回第一个素数2，然后，利用filter()不断产生筛选后的新的序列。
+1. 类和实例
+    
+    __init__方法的第一个参数永远是self，表示创建的实例本身。
 
-由于primes()也是一个无限序列，所以调用时需要设置一个退出循环的条件：
+    要定义一个方法，除了第一个参数是self外，其他和普通函数一样。
 
-# 打印1000以内的素数:
-for n in primes():
-    if n < 1000:
-        print(n)
-    else:
-        break
-注意到Iterator是惰性计算的序列，所以我们可以用Python表示“全体自然数”，“全体素数”这样的序列，而代码非常简洁。
+    和静态语言不同，Python允许对实例变量绑定任何数据，也就是说，对于两个实例变量，虽然它们都是同一个类的不同实例，但拥有的变量名称都可能不同;
 
-练习
+2. 访问限制
 
-回数是指从左向右读和从右向左读都是一样的数，例如12321，909。请利用filter()滤掉非回数：
+阅读: 226346
+在Class内部，可以有属性和方法，而外部代码可以通过直接调用实例变量的方法来操作数据，这样，就隐藏了内部的复杂逻辑。
 
-# -*- coding: utf-8 -*-
+但是，从前面Student类的定义来看，外部代码还是可以自由地修改一个实例的name、score属性：
 
-def is_palindrome(n):
+>>> bart = Student('Bart Simpson', 98)
+>>> bart.score
+98
+>>> bart.score = 59
+>>> bart.score
+59
+如果要让内部属性不被外部访问，可以把属性的名称前加上两个下划线__，在Python中，实例的变量名如果以__开头，就变成了一个私有变量（private），只有内部可以访问，外部不能访问，所以，我们把Student类改一改：
 
-    pass
+class Student(object):
 
-# 测试:
-output = filter(is_palindrome, range(1, 1000))
-print(list(output))
- Run
-小结
+    def __init__(self, name, score):
+        self.__name = name
+        self.__score = score
 
-filter()的作用是从一个序列中筛出符合条件的元素。由于filter()使用了惰性计算，所以只有在取filter()结果的时候，才会真正筛选并每次返回下一个筛出的元素。
+    def print_score(self):
+        print('%s: %s' % (self.__name, self.__score))
+改完后，对于外部代码来说，没什么变动，但是已经无法从外部访问实例变量.__name和实例变量.__score了：
 
+>>> bart = Student('Bart Simpson', 98)
+>>> bart.__name
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'Student' object has no attribute '__name'
+这样就确保了外部代码不能随意修改对象内部的状态，这样通过访问限制的保护，代码更加健壮。
+
+但是如果外部代码要获取name和score怎么办？可以给Student类增加get_name和get_score这样的方法：
+
+class Student(object):
+    ...
+
+    def get_name(self):
+        return self.__name
+
+    def get_score(self):
+        return self.__score
+如果又要允许外部代码修改score怎么办？可以再给Student类增加set_score方法：
+
+class Student(object):
+    ...
+
+    def set_score(self, score):
+        self.__score = score
+你也许会问，原先那种直接通过bart.score = 59也可以修改啊，为什么要定义一个方法大费周折？因为在方法中，可以对参数做检查，避免传入无效的参数：
+
+class Student(object):
+    ...
+
+    def set_score(self, score):
+        if 0 <= score <= 100:
+            self.__score = score
+        else:
+            raise ValueError('bad score')
+需要注意的是，在Python中，变量名类似__xxx__的，也就是以双下划线开头，并且以双下划线结尾的，是特殊变量，特殊变量是可以直接访问的，不是private变量，所以，不能用__name__、__score__这样的变量名。
+
+有些时候，你会看到以一个下划线开头的实例变量名，比如_name，这样的实例变量外部是可以访问的，但是，按照约定俗成的规定，当你看到这样的变量时，意思就是，“虽然我可以被访问，但是，请把我视为私有变量，不要随意访问”。
+
+双下划线开头的实例变量是不是一定不能从外部访问呢？其实也不是。不能直接访问__name是因为Python解释器对外把__name变量改成了_Student__name，所以，仍然可以通过_Student__name来访问__name变量：
+
+>>> bart._Student__name
+'Bart Simpson'
+但是强烈建议你不要这么干，因为不同版本的Python解释器可能会把__name改成不同的变量名。
+
+总的来说就是，Python本身没有任何机制阻止你干坏事，一切全靠自觉。
+
+最后注意下面的这种错误写法：
+
+>>> bart = Student('Bart Simpson', 98)
+>>> bart.get_name()
+'Bart Simpson'
+>>> bart.__name = 'New Name' # 设置__name变量！
+>>> bart.__name
+'New Name'
+表面上看，外部代码“成功”地设置了__name变量，但实际上这个__name变量和class内部的__name变量不是一个变量！内部的__name变量已经被Python解释器自动改成了_Student__name，而外部代码给bart新增了一个__name变量。不信试试：
+
+>>> bart.get_name() # get_name()内部返回self.__name
+'Bart Simpson'
 参考源码
 
-do_filter.py
-
-prime_numbers.py
+protected_student.py
 
 感觉本站内容不错，读后有收获？
+
+ 我要小额赞助，鼓励作者写出更好的教程

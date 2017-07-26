@@ -1,36 +1,43 @@
 #!/usr/bin/python3
 # -*- coding=UTF-8  -*-
- 
-print ('你好,世界')
 
-'''
-这是多行注释，使用单引号。
-这是多行注释，使用单引号。
-这是多行注释，使用单引号。
-'''
+__author__ = 'Michael Liao'
 
-"""
-这是多行注释，使用双引号。
-这是多行注释，使用双引号。
-这是多行注释，使用双引号。
-"""
+import sys
 
-# user = raw_input("\n\nPress the enter key to exit.")
-# print "input is: %s" %user
+def test():
+    args = sys.argv
+    if len(args)==1:
+        print('Hello, world!')
+    elif len(args)==2:
+        print('Hello, %s!' % args[1])
+    else:
+        print('Too many arguments!')
 
-# print ('a', 'b')
-# print ('b'),
-# name = input('please enter your name: ')
-# print('hello,', name)
-a = -100
-if a >= 0:
-    print(a)
-else:
-    print(-a)
+def _private_1(name):
+    return 'Hello, %s' % name
 
-print("I'am \"IronMan\"")
-print(r'\\\t\\')
-print('\\\t\\')
-print(r'''this is the first line 
-this is the second line
-this is the third line''')
+def _private_2(name):
+    return 'Hi, %s' % name
+
+def greeting(name):
+    if len(name) > 3:
+        return _private_1(name)
+    else:
+        return _private_2(name)
+        
+if __name__=='__main__':
+    test()
+    print ('你好,世界')
+
+    '''
+    这是多行注释，使用单引号。
+    这是多行注释，使用单引号。
+    这是多行注释，使用单引号。
+    '''
+    print("I'am \"IronMan\"")
+    print(r'\\\t\\')
+    print('\\\t\\')
+    print(r'''this is the first line 
+    this is the second line
+    this is the third line''')
